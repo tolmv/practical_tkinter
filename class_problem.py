@@ -124,6 +124,36 @@ class Restraints():
 
             self.dG = - K * T * math.log(arg)
 
+            
+        else:
+            K = 8.314472 * 0.001 * 0.23885  # Gas constant in kJ/mol/K
+            V = 1.66  # standard volume in nm^3
+
+            T = self.help[0]  # Temperature in Kelvin
+            r0 = self.help[1]  # Distance in nm
+            thA = self.help[2]  # Angle in degrees
+            thB = self.help[3]  # Angle in degrees
+
+            K_r = self.help[4]  # force constant for distance (kJ/mol/nm^2)
+            K_thA = self.help[5]  # force constant for angle (kJ/mol/rad^2)
+            K_thB = self.help[6]  # force constant for angle (kJ/mol/rad^2)
+            K_phiA = self.help[7]  # force constant for dihedral (kJ/mol/rad^2)
+            K_phiB = self.help[8]  # force constant for dihedral (kJ/mol/rad^2)
+            K_phiC = self.help[9]  # force constant for dihedral (kJ/mol/rad^2)
+
+            thA = math.radians(thA)  # convert angle from degrees to radians --> math.sin() wants radians
+            thB = math.radians(thB)  # convert angle from degrees to radians --> math.sin() wants radians
+
+            arg = (
+                    (8.0 * math.pi ** 2.0 * V) / (r0 ** 2.0 * math.sin(thA) * math.sin(thB))
+                    *
+                    (
+                            ((K_r * K_thA * K_thB * K_phiA * K_phiB * K_phiC) ** 0.5) / ((2.0 * math.pi * K * T) ** (3.0))
+                    )
+            )
+
+            self.dG = - K * T * math.log(arg)
+
         if self.r_varr.get() == 0:
             self.dG = self.dG * 0.23885
             self.label_res['text'] = "dG_off = {:.3f} kCal/mol".format(self.dG), "dG_on  = {:.3f} kCal/mol".format(-self.dG)
