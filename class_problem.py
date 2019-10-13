@@ -61,38 +61,39 @@ class Restraints():
                           self.label_answer5, self.label_answer6,
                           self.label_answer7, self.label_answer8, self.label_answer9]
 
-        self.label_res = Label(main, font=15)
         self.button_res = Button(main, text="Result: ")
 
-        for i in range(1, 11):
-            self.label_all[i - 1].grid(row=i, column=1)
-            self.entry_all[i - 1].grid(row=i, column=3)
+        for i in range(10):
+            self.label_all[i].grid(row=i+1, column=1)
+            self.entry_all[i].grid(row=i+1, column=2)
 
         for i in range(len(self.label_all)):
             self.label_all[i]['text'] = self.labels[i]
 
-        self.button_res.grid(row=11, column=2)
-        self.label_res.grid(row=11, column=3)
-
-        self.button_res.bind('<Button-1>', self.__calculate__)
 
         self.entry_all_get = [self.entry0.get(), self.entry1.get(), self.entry2.get(),
                               self.entry3.get(), self.entry4.get(),
                               self.entry5.get(), self.entry6.get(),
                               self.entry7.get(), self.entry8.get(), self.entry9.get()]
 
-    def inp(self, n):
-        if n == 1:
-            try:
-                for i in range(len(self.entry_all_get)):
-                    self.help.append(float(self.entry_all_get[i]))
-                    self.a = i
+        self.button_res.grid(row=11, column=2)
 
-            except ValueError:
-                mb.showerror("ERROR", "Error, please check your line {}".format(self.a))
+        self.button_res.bind('<Button-1>', self.__calculate__)
+
+    def show_res(self, event):
+        self.label_res_top1['text'] = "dG_off = {:.3f} kCal/mol".format(self.dG)
+        self.label_res_top2['text'] = "dG_on  = {:.3f} kCal/mol".format(-self.dG)
 
     def __calculate__(self, event):
-        self.inp(1)
+
+
+        try:
+            for i in range(len(self.entry_all_get)):
+                self.help.append(float(self.entry_all_get[i]))
+                self.a = i+1
+
+        except ValueError:
+            mb.showerror("ERROR", "Error, please check your line {}".format(self.a))
 
         if self.r_var.get() == 1:
 
@@ -124,7 +125,6 @@ class Restraints():
 
             self.dG = - K * T * math.log(arg)
 
-            
         else:
             K = 8.314472 * 0.001 * 0.23885  # Gas constant in kJ/mol/K
             V = 1.66  # standard volume in nm^3
@@ -153,14 +153,21 @@ class Restraints():
             )
 
             self.dG = - K * T * math.log(arg)
+        self.rt = App()
+        self.rt.change()
 
-        if self.r_varr.get() == 0:
-            self.dG = self.dG * 0.23885
-            self.label_res['text'] = "dG_off = {:.3f} kCal/mol".format(self.dG), "dG_on  = {:.3f} kCal/mol".format(-self.dG)
 
-        else:
-            self.label_res['text'] = "dG_off = {:.3f} kJ/mol".format(self.dG), "dG_on  = {:.3f} kJ/mol".format(-self.dG)
+class App(Restraints):
+    def __init__(self):
+        self.res_top = Toplevel(main)
+        self.label_res_top1 = Label(self.res_top, font=15)
+        self.label_res_top2 = Label(self.res_top, font=15)
+        self.label_res_top1.grid(row=0, column=0)
+        self.label_res_top2.grid(row=0, column=1)
 
+    def change(self, event):
+        self.label_res_top1['text'] = "dG_off = {:.3f} kCal/mol".format(self.dG)
+        self.label_res_top2['text'] = "dG_on  = {:.3f} kCal/mol".format(-self.dG)
 
 def main():
     root = Tk()
